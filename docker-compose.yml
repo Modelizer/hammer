@@ -1,0 +1,79 @@
+version: '2'
+
+services:
+  applications:
+    image: tianon/true
+    volumes:
+    - ./:/var/www
+
+  workspace:
+    build:
+      context: ./docker/workspace
+    volumes_from:
+    - applications
+    ports:
+    - 22:22
+    networks:
+    - frontend
+    - backend
+
+  php-fpm:
+    build:
+      context: ./docker/php-fpm
+    volumes_from:
+    - applications
+    volumes:
+    - ./docker/php-fpm/php.ini:/usr/local/etc/php/php.ini
+    expose:
+    - "9000"
+    depends_on:
+    - workspace
+    networks:
+    - backend
+
+  nginx:
+    build:
+      context: ./docker/nginx
+      args:
+      - PHP_UPSTREAM_CONTAINER=php-fpm
+      - PHP_UPSTREAM_PORT=9000
+    volumes_from:
+    - applications
+    volumes:
+    - ./docker/logs/nginx:/var/log/nginx
+    - ./docker/nginx/sites:/etc/nginx/site-available
+    ports:
+    - "80:80"
+    - "443:443"
+    depends_on:
+    - php-fpm
+    networks:
+    - frontend
+    - backend
+    environment:
+    - HTTPS_METHOD=noredirect
+
+  mysql:
+      build:
+        context: ./docker/mysql
+        args:
+        - MYSQL_VERSION=5.7
+      environment:
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - TZ=UTC
+      volumes:
+      - ./storage/mysql:/var/lib/mysql
+      - ./docker/mysql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      ports:
+      - "3306:3306"
+      networks:
+      - backend
+
+networks:
+  frontend:
+    driver: "bridge"
+  backend:
+    driver: "bridge"
