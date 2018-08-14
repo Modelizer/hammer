@@ -1,8 +1,7 @@
 ## Get started
 
 1. Run `docker-compose up -d` to initialize the container. Note: `hammer` database will be created after this setup.
-2. After successful building containers you should see 4 containers running.
-<img width="461" alt="screen shot 2018-08-14 at 4 37 06 pm" src="https://user-images.githubusercontent.com/7669734/44095042-72c1c2e4-9fe0-11e8-8248-532b2ef0beda.png">
+2. After successful building containers you should see 4 containers running. <img width="461" alt="screen shot 2018-08-14 at 4 37 06 pm" src="https://user-images.githubusercontent.com/7669734/44095042-72c1c2e4-9fe0-11e8-8248-532b2ef0beda.png">
 3. Login to php container and run `composer install && php artisan migrate --seed` command. This will install dependencies and will create necessary tables and seed them with initial data such as services and cities.
 4. To see those data you can connect to mysql container by using credentials given in .env file.
 5. Now you are ready to test api. Please visit https://cvee.gitbook.io/my-hammer/ to get api documentation.
