@@ -11,15 +11,15 @@ class JobController extends Controller
 {
     /**
      * @param Job $job
-     * @return array
+     * @return JsonResponse
      * @throws \InvalidArgumentException
      */
     public function index(Job $job)
     {
-        return [
+        return new JsonResponse([
             'status' => 'success',
             'result' => $job->with('service', 'location')->paginate(),
-        ];
+        ]);
     }
 
     /**
@@ -33,13 +33,13 @@ class JobController extends Controller
         if ($job->fill($request->all())->save()) {
             return new JsonResponse([
                 'message' => 'Successfully job posted.',
-                'status' => 'success'
+                'status' => 'success',
             ]);
         }
 
         return new JsonResponse([
             'message' => 'Something went wrong',
-            'status' => 'error'
+            'status' => 'error',
         ], 500);
     }
 
@@ -52,14 +52,14 @@ class JobController extends Controller
     {
         try {
             $job = $job->findOrFail($id);
-
-            return new JsonResponse([
-                'status' => 'success',
-                'result' => $job
-            ]);
         } catch (ModelNotFoundException $exception) {
             return $this->getJobNotFoundResponse();
         }
+
+        return new JsonResponse([
+            'status' => 'success',
+            'result' => $job,
+        ]);
     }
 
     /**
@@ -71,16 +71,34 @@ class JobController extends Controller
     public function update($id, ValidateJobRequest $request, Job $job)
     {
         try {
-            $job = $job->findOrFail($id)->update($request->toArray());
-
-            return new JsonResponse([
-                'status' => 'success',
-                'result' => $job
-            ], 204);
+            $job->findOrFail($id)->update($request->toArray());
         } catch (ModelNotFoundException $exception) {
             return $this->getJobNotFoundResponse();
         }
+
+        return new JsonResponse([
+            'status' => 'updated',
+        ]);
     }
+
+    /**
+     * @param $id
+     * @param Job $job
+     * @return JsonResponse
+     */
+    public function delete($id, Job $job)
+    {
+         try {
+             $job->findOrFail($id)->delete();
+         } catch (ModelNotFoundException $exception) {
+             return $this->getJobNotFoundResponse();
+         }
+
+         return new JsonResponse([
+             'status' => 'deleted',
+         ]);
+    }
+
 
     /**
      * @return JsonResponse
