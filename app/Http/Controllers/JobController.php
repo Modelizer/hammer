@@ -77,6 +77,7 @@ class JobController extends Controller
         }
 
         return new JsonResponse([
+            'message' => 'Job updated successfully.',
             'status' => 'updated',
         ]);
     }
@@ -95,6 +96,7 @@ class JobController extends Controller
          }
 
          return new JsonResponse([
+             'message' => 'Job deleted successfully.',
              'status' => 'deleted',
          ]);
     }
